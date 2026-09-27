@@ -1,0 +1,9 @@
+.idea
+.claude
+.venv/
+site/
+.build/
+_published/
+__pycache__/
+*.pyc
+.DS_Store
