@@ -1,6 +1,9 @@
+venv/
+_build/
+.cache/
+.nox/
 .idea
 .claude
-.venv/
 site/
 .build/
 _published/

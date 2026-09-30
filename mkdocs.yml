@@ -1,0 +1,38 @@
+site_name: "Отчёт — генераторы статических сайтов"
+site_description: "Исследовательское задание T1 и практическое задание P3"
+site_url: "https://jushoru.github.io/python-static-web-site/"
+repo_url: "https://github.com/Jushoru/python-static-web-site"
+
+theme:
+  name: material
+  language: ru
+  font: false
+
+plugins:
+  - search:
+      lang:
+        - ru
+        - en
+
+nav:
+  - Главная: index.md
+  - Практика P3: practice.md
+  - Пример тестовой страницы: example.md
+  - Результаты эксперимента: results.md
+  - Отладка: debugging.md
+
+hooks:
+  - scripts/report_hook.py
+
+watch:
+  - data
+  - scripts
+
+use_directory_urls: false
+
+markdown_extensions:
+  - admonition
+  - tables
+  - footnotes
+  - attr_list
+  - pymdownx.superfences

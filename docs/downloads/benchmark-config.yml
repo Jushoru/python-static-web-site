@@ -1,0 +1,12 @@
+site_name: Benchmark
+theme:
+  name: material
+  language: ru
+  font: false
+plugins:
+  - search:
+      lang: [ru, en]
+use_directory_urls: false
+markdown_extensions:
+  - tables
+  - pymdownx.superfences

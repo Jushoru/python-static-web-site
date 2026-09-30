@@ -1,0 +1,91 @@
+{
+  "dataset_version": "v1",
+  "started_at_utc": "2026-09-30T20:18:26.794972+00:00",
+  "finished_at_utc": "2026-09-30T20:19:16.806339+00:00",
+  "python": "3.14.5",
+  "system": "Windows",
+  "system_release": "11",
+  "architecture": "AMD64",
+  "processor": "AMD64 Family 23 Model 24 Stepping 1, AuthenticAMD",
+  "logical_cpu_count": 8,
+  "packages": {
+    "mkdocs": "1.6.1",
+    "mkdocs-material": "9.7.7"
+  },
+  "pages": [
+    10,
+    50,
+    100
+  ],
+  "repeats": 5,
+  "warmups_per_size": 1,
+  "order_seed": 42,
+  "execution_order": [
+    [
+      50,
+      4
+    ],
+    [
+      100,
+      4
+    ],
+    [
+      50,
+      3
+    ],
+    [
+      50,
+      2
+    ],
+    [
+      100,
+      5
+    ],
+    [
+      100,
+      3
+    ],
+    [
+      50,
+      1
+    ],
+    [
+      10,
+      3
+    ],
+    [
+      50,
+      5
+    ],
+    [
+      10,
+      4
+    ],
+    [
+      10,
+      5
+    ],
+    [
+      100,
+      2
+    ],
+    [
+      10,
+      1
+    ],
+    [
+      10,
+      2
+    ],
+    [
+      100,
+      1
+    ]
+  ],
+  "sections_per_page": 8,
+  "build_command": "python -m mkdocs build --clean --strict",
+  "timing_scope": "wall time of subprocess including Python startup and MkDocs cleanup; excludes source generation and byte counting",
+  "cache_conditions": "full clean builds after warm-up; operating system file cache is NOT cleared",
+  "benchmark_sha256": "b9b50bf93bd820a5656a50531d495a17a3aa041d368de800ec32061ef73e93f0",
+  "requirements_sha256": "aaf7f73b82cadf4e5f872973b748a396e6a18c5b8ba5e41c82af681364ac7e9d"
+}
