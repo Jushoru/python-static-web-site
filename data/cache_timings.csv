@@ -1,0 +1,11 @@
+mode,repeat,seconds,cache_status
+cached,1,0.446187,HIT
+cached,2,0.534369,HIT
+cached,3,0.491633,HIT
+cached,4,0.523180,HIT
+cached,5,0.595957,HIT
+uncached,1,1.756592,BYPASS
+uncached,2,1.993756,BYPASS
+uncached,3,2.362976,BYPASS
+uncached,4,2.441321,BYPASS
+uncached,5,1.712522,BYPASS

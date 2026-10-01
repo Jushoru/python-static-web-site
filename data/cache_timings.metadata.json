@@ -1,0 +1,67 @@
+{
+  "measured_at_utc": "2026-09-30T21:20:50.879460+00:00",
+  "analysis_key": "2c9c9e5b0b172d9b64fa22d1792c8af5b9c3ff665b62270d486f8b71cfe3a4e0",
+  "repeats": 5,
+  "environment": {
+    "python": "3.14.5",
+    "implementation": "CPython",
+    "system": "Windows",
+    "machine": "AMD64",
+    "packages": {
+      "matplotlib": "3.11.2",
+      "numpy": "2.5.3",
+      "pillow": "12.3.0",
+      "fonttools": "4.66.1",
+      "mkdocs": "1.6.1",
+      "mkdocs-material": "9.7.7",
+      "Markdown": "3.11",
+      "pymdown-extensions": "12.1"
+    }
+  },
+  "order_seed": 42,
+  "execution_order": [
+    [
+      "cached",
+      4
+    ],
+    [
+      "cached",
+      2
+    ],
+    [
+      "uncached",
+      2
+    ],
+    [
+      "uncached",
+      5
+    ],
+    [
+      "cached",
+      3
+    ],
+    [
+      "uncached",
+      4
+    ],
+    [
+      "cached",
+      5
+    ],
+    [
+      "uncached",
+      3
+    ],
+    [
+      "uncached",
+      1
+    ],
+    [
+      "cached",
+      1
+    ]
+  ],
+  "timing_scope": "full prepare_report.py subprocess including Python startup; excludes nox setup, package installation, MkDocs HTML build and output verification",
+  "warmups": "one uncached run and one cache-priming run; both excluded",
+  "outputs_identical": true
+}

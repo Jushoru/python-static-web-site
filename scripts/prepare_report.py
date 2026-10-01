@@ -1,31 +1,24 @@
 """Validate benchmark data and generate report pages and a local static chart."""
 
+import argparse
 import csv
-import hashlib
 import io
 import json
 import math
 import statistics
 import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
 from benchmark import CONFIG, FIELDS, SECTION
+from report_cache import cache_key, restore, save, snapshot_matches, write_if_changed
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
 DATA = ROOT / "data" / "build_times.csv"
 METADATA = DATA.with_suffix(".metadata.json")
-
-
-def write_if_changed(path, content):
-    """Avoid triggering a new live-reload build when generated content is identical."""
-    payload = content.encode("utf-8") if isinstance(content, str) else content
-    if path.exists() and path.read_bytes() == payload:
-        return
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_bytes(payload)
 
 
 def read_measurements(data_path=DATA, metadata_path=METADATA):
@@ -185,6 +178,7 @@ def results_page(rows, metadata, summary):
               "- [Пакеты среды измерений](downloads/benchmark_environment.txt)",
               "- [Скрипт эксперимента](downloads/benchmark.py)",
               "- [Скрипт обработки](downloads/prepare_report.py)", "",
+              "- [Модуль кэширования](downloads/report_cache.py)", "",
               "Список пакетов среды измерений сохранён отдельно от зависимостей отчёта: "
               "Matplotlib установлен позднее для обработки уже полученных данных.", "",
               "CSV проверяется на положительные конечные значения времени, дубликаты повторов,",
@@ -230,17 +224,35 @@ def example_page():
 
 
 def main():
+    global DOCS
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--no-cache", action="store_true", help="Recalculate without reading or writing the cache")
+    parser.add_argument("--cache-dir", type=Path, default=ROOT / ".cache" / "report")
+    parser.add_argument("--output-dir", type=Path, default=DOCS)
+    parser.add_argument("--json", action="store_true", help="Print machine-readable execution status")
+    args = parser.parse_args()
+    DOCS = args.output_dir.resolve()
+    started = time.perf_counter()
+    key = cache_key()
+    if not args.no_cache and restore(args.cache_dir, key, DOCS):
+        status = {"status": "HIT", "key": key, "elapsed_seconds": time.perf_counter() - started}
+        print(json.dumps(status) if args.json else f"Report cache HIT [{key[:12]}]: calculation and plotting skipped")
+        return
     rows, metadata = read_measurements()
     snapshot = ROOT / "data" / "benchmark_environment.txt"
-    if hashlib.sha256(snapshot.read_bytes()).hexdigest() != metadata["requirements_sha256"]:
+    if not snapshot_matches(snapshot.read_bytes(), metadata["requirements_sha256"]):
         raise ValueError("Benchmark environment snapshot does not match recorded checksum")
     summary = summarize(rows)
     make_chart(summary)
     example_page()
     write_if_changed(DOCS / "results.md", results_page(rows, metadata, summary))
-    for source in (DATA, METADATA, snapshot, ROOT / "scripts" / "benchmark.py", Path(__file__)):
+    for source in (DATA, METADATA, snapshot, ROOT / "scripts" / "benchmark.py", Path(__file__), ROOT / "scripts" / "report_cache.py"):
         write_if_changed(DOCS / "downloads" / source.name, source.read_bytes())
-    print(f"Report prepared: {len(rows)} measurements, {len(summary)} page counts.")
+    if not args.no_cache:
+        save(args.cache_dir, key, DOCS)
+    status = {"status": "BYPASS" if args.no_cache else "MISS", "key": key,
+              "elapsed_seconds": time.perf_counter() - started}
+    print(json.dumps(status) if args.json else f"Report cache {status['status']} [{key[:12]}]: processed {len(rows)} measurements")
 
 
 if __name__ == "__main__":

@@ -7,6 +7,10 @@ theme:
   name: material
   language: ru
   font: false
+  palette:
+    scheme: default
+    primary: teal
+    accent: orange
 
 plugins:
   - search:
@@ -16,9 +20,13 @@ plugins:
 
 nav:
   - Главная: index.md
+  - Теория T1:
+      - Сравнение возможностей: theory.md
+      - Оценки и диаграмма: theory-scores.md
   - Практика P3: practice.md
   - Пример тестовой страницы: example.md
   - Результаты эксперимента: results.md
+  - Сборка и кэширование: build.md
   - Отладка: debugging.md
 
 hooks:
