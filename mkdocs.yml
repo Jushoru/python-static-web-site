@@ -27,6 +27,7 @@ nav:
   - Пример тестовой страницы: example.md
   - Результаты эксперимента: results.md
   - Сборка и кэширование: build.md
+  - Публикация и CI: deployment.md
   - Отладка: debugging.md
 
 hooks:
