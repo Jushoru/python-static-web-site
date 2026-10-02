@@ -70,7 +70,7 @@ jobs:
       - name: Build Helios site
         run: python -m nox --no-venv -s build -- --config-file mkdocs.helios.yml
 
-      # Downloadable build for the initial SFTP deployment; no SSH credentials needed.
+      # The Helios deploy job downloads this exact build; it is also available manually.
       - name: Upload Helios artifact
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
@@ -104,6 +104,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
+      contents: read
       pages: write
       id-token: write
     environment:
@@ -113,3 +114,47 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Checkout verification script
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Check published GitHub Pages
+        env:
+          REPORT_URL: ${{ steps.deployment.outputs.page_url }}
+        run: python3 scripts/check_published.py --url "$REPORT_URL" --commit "$GITHUB_SHA"
+
+  deploy-helios:
+    # Repository variable: enable only after configuring the environment and SSH key.
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.HELIOS_DEPLOY_ENABLED == 'true'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    environment:
+      name: helios
+      url: https://se.ifmo.ru/~s370419/python-static-web-site/
+    steps:
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Download built Helios site
+        uses: actions/download-artifact@v4
+        with:
+          name: helios-site
+          path: _published/helios
+
+      - name: Upload report over SFTP
+        env:
+          HELIOS_HOST: ${{ vars.HELIOS_HOST }}
+          HELIOS_PORT: ${{ vars.HELIOS_PORT }}
+          HELIOS_SSH_KEY: ${{ secrets.HELIOS_SSH_KEY }}
+          HELIOS_KNOWN_HOSTS: ${{ secrets.HELIOS_KNOWN_HOSTS }}
+        run: python3 scripts/deploy_helios.py
+
+      - name: Check published Helios report
+        run: python3 scripts/check_published.py --url 'https://se.ifmo.ru/~s370419/python-static-web-site/' --commit "$GITHUB_SHA"
