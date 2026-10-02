@@ -183,6 +183,42 @@ benchmark.py → исходные измерения CSV + параметры JS
 При единственном повторе СКО не оценивается. Для расчётов используются исходные
 значения CSV; округление выполняется только при выводе таблицы.
 
+### Формулы расчёта {#formulas}
+
+Среднее время определяется по формуле [(1)](#eq-mean):
+
+<div class="report-equation" id="eq-mean">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="Среднее время равно сумме времён всех повторов, делённой на n">
+  <mrow><mover><mi>t</mi><mo>¯</mo></mover><mo>=</mo>
+  <mfrac><mn>1</mn><mi>n</mi></mfrac>
+  <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+  <msub><mi>t</mi><mi>i</mi></msub></mrow>
+</math>
+<span>(1)</span>
+</div>
+
+Выборочное стандартное отклонение рассчитывается по формуле [(2)](#eq-stdev):
+
+<div class="report-equation" id="eq-stdev">
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block" aria-label="Выборочное СКО равно корню из суммы квадратов отклонений от среднего, делённой на n минус один">
+  <mrow><mi>s</mi><mo>=</mo><msqrt><mrow>
+  <mfrac><mn>1</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></mfrac>
+  <munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover>
+  <msup><mrow><mo>(</mo><msub><mi>t</mi><mi>i</mi></msub><mo>−</mo>
+  <mover><mi>t</mi><mo>¯</mo></mover><mo>)</mo></mrow><mn>2</mn></msup>
+  </mrow></msqrt></mrow>
+</math>
+<span>(2)</span>
+</div>
+
+Здесь `tᵢ` — время одного повтора в секундах, `n` — число повторов.
+Для формулы (2) требуется `n ≥ 2`. Нумерация и ссылки заданы в разметке страницы.
+Формулы записаны в MathML и отображаются браузером без загрузки MathJax,
+KaTeX или шрифтов с CDN. Требуется браузер с поддержкой MathML Core.
+[Описание MathML](https://developer.mozilla.org/en-US/docs/Web/MathML).
+
+### Вызов обработки при сборке
+
 В `mkdocs.yml` подключён `scripts/report_hook.py`. Перед сборкой он запускает
 обработку, а затем MkDocs включает полученные страницы и изображения в сайт.
 Таким образом, обычные команды работают без отдельного ручного копирования таблиц:
@@ -206,19 +242,23 @@ python scripts/prepare_report.py
 ```
 
 [Таблицы, график и исходные материалы доступны на странице результатов](results.md).
-Файлы `docs/results.md`, `docs/example.md`, `docs/assets/generated/` и `docs/downloads/`
+Файлы `docs/results.md`, `docs/example.md`, графики `docs/assets/generated/build-times.*`
+и перечисленные в `scripts/report_cache.py::OUTPUTS` файлы `docs/downloads/`
 формируются автоматически: ручные изменения в них будут заменены следующей сборкой.
+Скачиваемый текст теории `docs/downloads/theory-original.txt` в этот список не входит.
 Текст методики в `docs/practice.md` редактируется вручную.
 
 Механизм запуска описан в [документации MkDocs о hooks](https://www.mkdocs.org/user-guide/configuration/#hooks).
 Отрезки разброса построены средствами [Matplotlib errorbar](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.errorbar.html).
 
-## Что ещё предстоит для P3
+## Реализация конвейера P3
 
 Обработка CSV, кэширование и локальная сборка отчёта уже связаны.
 [На отдельной странице](build.md) описаны команды nox, механизм кэша, его замеры
 и метки коммита, даты сборки и версии данных.
 
-На следующих этапах нужно настроить публикацию на GitHub Pages и Helios, сохранение
-кэша в GitHub Actions и продемонстрировать обновление опубликованного графика
-после изменения исходных данных.
+В GitHub Actions настроены сохранение кэша, публикация на GitHub Pages и передача
+готовых файлов на Helios. После развёртывания выполняются HTTP-проверки.
+Изменение исходного CSV меняет ключ кэша: при следующей сборке
+статистика и график пересчитываются, а готовые файлы публикуются на обеих площадках.
+При неизменных данных и окружении используются сохранённые результаты.

@@ -1,6 +1,7 @@
 """Fresh build provenance and cache timing tables, rendered without editing docs."""
 
 import csv
+import importlib.util
 import json
 import math
 import os
@@ -10,6 +11,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+_cache_spec = importlib.util.spec_from_file_location("report_cache_outputs", ROOT / "scripts/report_cache.py")
+_cache_module = importlib.util.module_from_spec(_cache_spec)
+_cache_spec.loader.exec_module(_cache_module)
 
 
 def git_output(*arguments):
@@ -23,7 +27,10 @@ def git_output(*arguments):
 
 def read_build_info(report_status):
     commit = os.environ.get("GITHUB_SHA") or git_output("rev-parse", "HEAD") or "не определён"
-    changes = git_output("status", "--porcelain", "--untracked-files=normal")
+    # Derived report files may differ across platforms after generation. They do
+    # not represent edits to source data/code. Keep all other changes visible.
+    changes = git_output("status", "--porcelain", "--untracked-files=normal", "--", ".",
+                         *(f":(exclude)docs/{name}" for name in _cache_module.OUTPUTS))
     metadata = json.loads((ROOT / "data/build_times.metadata.json").read_text(encoding="utf-8-sig"))
     return {
         "commit": commit,

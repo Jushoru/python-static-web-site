@@ -57,6 +57,8 @@ class DeploymentTests(unittest.TestCase):
         commit = "a" * 40
         valid = {"index.html": deploy.MARKER, "results.html": commit,
                  "theory.html": '<img src="assets/theory/radar_ssg.png">',
+                 "practice.html": '<div id="eq-mean"></div><div id="eq-stdev"></div>'
+                     + '<math xmlns="http://www.w3.org/1998/Math/MathML"><mi>t</mi></math>' * 2,
                  "search/search_index.json": json.dumps({"docs": [{"title": "Report"}]}),
                  "assets/generated/build-times.svg": '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
                  **published.IMAGE_SIGNATURES}
@@ -64,6 +66,7 @@ class DeploymentTests(unittest.TestCase):
         for name, replacement in [("index.html", "404"), ("results.html", "b" * 40),
                                   ("search/search_index.json", '{"docs": []}'),
                                   ("theory.html", '<img src="old-diagram.svg">'),
+                                  ("practice.html", '<p>Formula not rendered</p>'),
                                   ("assets/generated/build-times.svg", "<html>Not Found</html>"),
                                   ("assets/theory/radar_ssg.png", b"<html>Not Found</html>"),
                                   ("assets/theory/image2.jpg", b"<html>Not Found</html>")]:

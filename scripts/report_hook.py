@@ -41,4 +41,7 @@ def on_page_markdown(markdown, page, config, files):
         )
     if page.file.src_uri == "results.md":
         return markdown + "\n\n## Версия этой сборки\n\n" + build_info.provenance_table(info) + "\n"
+    if page.file.src_uri == "deployment.md":
+        workflow = (ROOT / ".github/workflows/pages.yml").read_text(encoding="utf-8")
+        return markdown.replace("<!-- WORKFLOW_SOURCE -->", "```yaml\n" + workflow.rstrip() + "\n```")
     return markdown

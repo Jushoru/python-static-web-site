@@ -1,0 +1,12 @@
+.report-equation {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+.report-equation math {
+  flex: 1;
+  font-size: 1.25em;
+  min-width: max-content;
+}

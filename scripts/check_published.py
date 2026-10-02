@@ -4,6 +4,7 @@ import argparse
 import json
 import re
 import time
+from xml.etree import ElementTree
 from urllib.error import URLError
 from urllib.parse import urljoin, urlsplit
 from urllib.request import Request, urlopen
@@ -13,7 +14,7 @@ IMAGE_SIGNATURES = {
     "assets/theory/radar_ssg.png": b"\x89PNG\r\n\x1a\n",
     "assets/theory/image2.jpg": b"\xff\xd8\xff",
 }
-CHECKS = ("index.html", "results.html", "theory.html", "search/search_index.json",
+CHECKS = ("index.html", "results.html", "theory.html", "practice.html", "search/search_index.json",
           "assets/generated/build-times.svg", *IMAGE_SIGNATURES)
 
 
@@ -29,6 +30,14 @@ def validate_contents(contents, commit):
         raise ValueError("Published theory does not yet reference the supplied radar")
     if "<svg" not in contents["assets/generated/build-times.svg"]:
         raise ValueError("Expected the P3 SVG chart")
+    practice = contents["practice.html"]
+    formulas = re.findall(r"<math\b[^>]*>.*?</math>", practice, re.DOTALL)
+    if len(formulas) < 2 or any(f'id="{anchor}"' not in practice for anchor in ("eq-mean", "eq-stdev")):
+        raise ValueError("Published practice is missing the numbered formulas")
+    for formula in formulas:
+        root = ElementTree.fromstring(formula)
+        if root.tag != "{http://www.w3.org/1998/Math/MathML}math":
+            raise ValueError("Formula is not MathML")
     for path, signature in IMAGE_SIGNATURES.items():
         if not contents[path].startswith(signature):
             raise ValueError(f"Unexpected image format at {path}")
@@ -65,9 +74,9 @@ def main():
     for attempt in range(1, args.attempts + 1):
         try:
             count = check_once(args.url, args.commit)
-            print(f"OK: HTTP 200 for {count} resources; marker, commit, theory, search index and images verified.")
+            print(f"OK: HTTP 200 for {count} resources; marker, commit, theory, search index, formulas and images verified.")
             return
-        except (URLError, OSError, ValueError) as error:
+        except (URLError, OSError, ValueError, ElementTree.ParseError) as error:
             print(f"Check {attempt}/{args.attempts}: {error}", flush=True)
             if attempt == args.attempts:
                 raise SystemExit("Published report verification failed") from error

@@ -28,8 +28,10 @@ nav:
   - Результаты эксперимента: results.md
   - Сборка и кэширование: build.md
   - Публикация и CI: deployment.md
-  - Автопубликация Helios: helios-ci.md
   - Отладка: debugging.md
+
+extra_css:
+  - assets/stylesheets/report.css
 
 hooks:
   - scripts/report_hook.py
