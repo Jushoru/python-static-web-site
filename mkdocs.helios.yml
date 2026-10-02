@@ -1,0 +1,4 @@
+# Reuse content, theme, plugins and hooks from the GitHub Pages configuration.
+INHERIT: mkdocs.yml
+site_url: "https://se.ifmo.ru/~s370419/python-static-web-site/"
+site_dir: site-helios

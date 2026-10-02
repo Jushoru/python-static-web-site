@@ -5,6 +5,7 @@ _build/
 .idea
 .claude
 site/
+site-helios/
 .build/
 _published/
 __pycache__/

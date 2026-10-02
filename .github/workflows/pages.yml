@@ -66,6 +66,20 @@ jobs:
       - name: Run tests and build strictly
         run: python -m nox --no-venv -s check build
 
+      # Separate output and canonical URL for hosting under /~s370419/.
+      - name: Build Helios site
+        run: python -m nox --no-venv -s build -- --config-file mkdocs.helios.yml
+
+      # Downloadable build for the initial SFTP deployment; no SSH credentials needed.
+      - name: Upload Helios artifact
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: helios-site
+          path: site-helios/
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Save report cache
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && steps.report-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
