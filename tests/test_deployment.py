@@ -56,12 +56,17 @@ class DeploymentTests(unittest.TestCase):
     def test_http_check_rejects_stale_commit_missing_marker_index_or_image(self):
         commit = "a" * 40
         valid = {"index.html": deploy.MARKER, "results.html": commit,
+                 "theory.html": '<img src="assets/theory/radar_ssg.png">',
                  "search/search_index.json": json.dumps({"docs": [{"title": "Report"}]}),
-                 **{name: '<svg xmlns="http://www.w3.org/2000/svg"></svg>' for name in published.CHECKS[-2:]}}
+                 "assets/generated/build-times.svg": '<svg xmlns="http://www.w3.org/2000/svg"></svg>',
+                 **published.IMAGE_SIGNATURES}
         published.validate_contents(valid, commit)
         for name, replacement in [("index.html", "404"), ("results.html", "b" * 40),
                                   ("search/search_index.json", '{"docs": []}'),
-                                  (published.CHECKS[-1], "<html>Not Found</html>")]:
+                                  ("theory.html", '<img src="old-diagram.svg">'),
+                                  ("assets/generated/build-times.svg", "<html>Not Found</html>"),
+                                  ("assets/theory/radar_ssg.png", b"<html>Not Found</html>"),
+                                  ("assets/theory/image2.jpg", b"<html>Not Found</html>")]:
             with self.subTest(name=name), self.assertRaises(ValueError):
                 published.validate_contents({**valid, name: replacement}, commit)
 

@@ -21,8 +21,8 @@ plugins:
 nav:
   - Главная: index.md
   - Теория T1:
-      - Сравнение возможностей: theory.md
-      - Оценки и диаграмма: theory-scores.md
+      - Сравнительный анализ: theory.md
+      - Иллюстрации и исходники: theory-scores.md
   - Практика P3: practice.md
   - Пример тестовой страницы: example.md
   - Результаты эксперимента: results.md

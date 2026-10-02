@@ -9,8 +9,12 @@ from urllib.parse import urljoin, urlsplit
 from urllib.request import Request, urlopen
 
 
-CHECKS = ("index.html", "results.html", "search/search_index.json",
-          "assets/generated/build-times.svg", "assets/theory/ssg-comparison.svg")
+IMAGE_SIGNATURES = {
+    "assets/theory/radar_ssg.png": b"\x89PNG\r\n\x1a\n",
+    "assets/theory/image2.jpg": b"\xff\xd8\xff",
+}
+CHECKS = ("index.html", "results.html", "theory.html", "search/search_index.json",
+          "assets/generated/build-times.svg", *IMAGE_SIGNATURES)
 
 
 def validate_contents(contents, commit):
@@ -21,9 +25,13 @@ def validate_contents(contents, commit):
     index = json.loads(contents["search/search_index.json"])
     if not isinstance(index, dict) or not isinstance(index.get("docs"), list) or not index["docs"]:
         raise ValueError("Search index is empty or invalid")
-    for path in CHECKS[-2:]:
-        if "<svg" not in contents[path]:
-            raise ValueError(f"Expected an SVG image at {path}")
+    if "assets/theory/radar_ssg.png" not in contents["theory.html"]:
+        raise ValueError("Published theory does not yet reference the supplied radar")
+    if "<svg" not in contents["assets/generated/build-times.svg"]:
+        raise ValueError("Expected the P3 SVG chart")
+    for path, signature in IMAGE_SIGNATURES.items():
+        if not contents[path].startswith(signature):
+            raise ValueError(f"Unexpected image format at {path}")
 
 
 def check_once(base, commit):
@@ -34,7 +42,8 @@ def check_once(base, commit):
         with urlopen(request, timeout=20) as response:
             if response.status != 200:
                 raise ValueError(f"HTTP {response.status} for {path}")
-            contents[path] = response.read().decode("utf-8")
+            body = response.read()
+            contents[path] = body if path in IMAGE_SIGNATURES else body.decode("utf-8")
     validate_contents(contents, commit)
     return len(contents)
 
@@ -56,7 +65,7 @@ def main():
     for attempt in range(1, args.attempts + 1):
         try:
             count = check_once(args.url, args.commit)
-            print(f"OK: HTTP 200 for {count} resources; marker, commit, search index and SVGs verified.")
+            print(f"OK: HTTP 200 for {count} resources; marker, commit, theory, search index and images verified.")
             return
         except (URLError, OSError, ValueError) as error:
             print(f"Check {attempt}/{args.attempts}: {error}", flush=True)
